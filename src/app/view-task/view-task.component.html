@@ -1,0 +1,129 @@
+<div class="row mt-2">
+        <div class="col-sm-4">
+          <input type="text" id="searchTask" class="form-control" [(ngModel)]="filterProject" placeholder="Search..." />
+       </div>
+        <div class="col-sm-8">
+          <label class="form-control-static">Sort:</label>&nbsp;
+          <input type="button" value="Start Date" class="btn btn-info" (click)="sortTasks('startDate')"/>&nbsp;
+          <input type="button" value="End Date" class="btn btn-info" (click)="sortTasks('endDate')" />&nbsp;
+          <input type="button" value="Priority" class="btn btn-info" (click)="sortTasks('priority')" />
+          <input type="button" value="Task Completed" class="btn btn-info" (click)="sortTasks('activeFlag')" />
+        </div>
+      </div>
+     
+       
+      <div class="row mb-2">
+            <div  class="col-sm-2"><b>Task</b></div>
+            <div  class="col-sm-2"><b>Parent</b></div>
+            <div  class="col-sm-2"><b>Priority</b></div>
+            <div  class="col-sm-2"><b>Start Date</b></div>
+            <div  class="col-sm-2"><b>End Date</b></div>
+            <div class="col-sm-2"> </div>
+          </div>
+        <div *ngFor="let task of tasks | searchTask : filterProject : 'project' ">
+            <div class="row mb-2 bg-light">
+                    <div  class="col-sm-2">{{ task.task }}</div>
+                    <div  class="col-sm-2">{{ task.parentTask }}</div>
+                    <div  class="col-sm-2">{{ task.priority }}</div>
+                    <div  class="col-sm-2">{{ task.startDate |  date: 'MM/dd/yyyy' }}</div>
+                    <div  class="col-sm-2">{{ task.endDate |  date: 'MM/dd/yyyy'}}</div>
+                <div class="col-sm-1"><button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal" [disabled]='!task.activeFlag' (click)="openModalDialog(task)">Edit</button></div>
+                  <div class="col-sm-1"> <button type="button" class="btn btn-info btn-sm" (click)="endTask(task)" [disabled]='!task.activeFlag'>End</button></div>
+              </div>
+        </div>
+  
+   
+  
+<!-- Modal -->
+<!-- modal -->
+<div class="modal mainpage" tabindex="-1" role="dialog"  [ngStyle]="{'display':display}">
+
+  <div class="modal-dialog" role="document">
+  
+    <div class="modal-content">
+    
+      <div class="modal-header popupHeader">  Edit Task 
+        <button type="button" class="close" aria-label="Close" (click)="closeModalDialog()"><span aria-hidden="true">&times;</span></button>
+        
+      </div>
+
+      <!-- modal-body -->
+      <div class="modal-body popupBody">
+        <div class="container">
+          <div class="row">
+              <form  class="form-group" (submit)="updateTask()">
+                  <div class="row mb-2">
+                      <div class="col-sm-6">
+                       <label for="projectID">Project:</label>
+                        <select style="width:100%" [(ngModel)]="taskData.projectID" name="projectID">
+                                <option *ngFor="let project of projects" [ngValue]="project.projectID">{{project.project}}</option>
+                              </select> 
+                        
+                      </div>
+                      <div class="col-sm-6">
+                        <label for="task">Task:</label>
+                        <input  type="text" class="form-control"  [(ngModel)]="taskData.task" name="task"  >
+                          </div>
+                      </div>
+                      <div class="row mb-2">
+                          <div class="col-sm-3">
+                              <input type="checkbox" [(ngModel)]="isChecked" [ngModelOptions]="{standalone: true}"/>Parent Task</div>
+                      <div class="col-sm-3">
+                          <label for="priority">Priority</label>
+                          <input style="width:100%"  type="range" [(ngModel)]="taskData.priority" id="rangePriority" name="priority" max="30" min="0" step="1" value="0" oninput="rangeDisplay.value = rangePriority.value" required>
+                          <output id="rangeDisplay"></output>
+                        </div>
+                       
+                          <div class="col-sm-6">
+                                   <label for="parentTask">Parent Task:</label>
+                                  <select [disabled]="isChecked" style="width:100%" [(ngModel)]="taskData.parentTask" name="parentTask">
+                                          <option *ngFor="let task of tasks" [ngValue]="task.task">{{task.task}}</option>
+                                        </select>
+                        </div>
+                      </div>
+                      <div class="row mb-2">
+                            <div class="col-sm-6">
+                              <label for="startDate">Start Date:</label>
+                              <input type="date" class="form-control" [(ngModel)]="taskData.startDate" name="startDate" size="30">
+                              
+                            </div>
+                            <div class="col-sm-6">
+                              <label for="endDate">End Date:</label>
+                              <input type="date" class="form-control" [(ngModel)]="taskData.endDate" name="endDate" size="30" required>
+                            </div>
+                            </div>
+                            <div class="row mb-2">
+                                    <div class="col-sm-6">
+                                            <label for="user">User:</label>
+                                            <select style="width:100%" [(ngModel)]="taskData.userID" name="user">
+                                                    <option *ngFor="let user of users" [ngValue]="user.userID">{{user.firstName}}</option>
+                                                  </select>
+                                      
+                                    </div>
+                                    
+                                    <div class="col-sm-6">
+                                            <input type="submit" class="btn btn-primary" value="Update" >&nbsp;&nbsp;
+                                    </div>
+                                    </div>
+         
+            
+      
+        </form>
+      
+          </div>
+      
+      
+      
+      
+      
+      
+      </div>
+      </div>
+
+      <!-- modal-footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" (click)="closeModalDialog()" >Close</button>
+      </div>
+    </div>
+  </div>
+</div>

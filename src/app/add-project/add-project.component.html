@@ -1,0 +1,179 @@
+<form  class="form-group" [formGroup]='addProjectFormGroup' (submit)="AddProject()">
+  <div class="row mb-2">
+       <div class="col">
+          <label for="project">Project:</label>
+      <input  type="text" class="form-control"  formControlName='project' [(ngModel)]="project.project" name="project"  >
+      <small class="text-danger" [class.d-none]="!(f.project.errors && f.project.touched) " > Field Required </small>
+    </div>
+  </div>
+  <div class="row mb-2">
+    <div class="col-sm-4" >
+      <input type="checkbox" (change)="setStartEndDates()" [ngModelOptions]="{standalone: true}" [(ngModel)]="isChecked"/>Set Start and End Date
+   
+    </div>  
+     
+      <div class="col-sm-4">
+            Start Date:  <input type="date" placeholder="Start Date" [ngModelOptions]="{standalone: true}"  class="form-control" (ngModelChange)="project.startDate=$event" [disabled]="!isChecked" [ngModel]="project.startDate | date:'yyyy-MM-dd'" name="startDate" size="30"/>
+                      </div>
+      <div class="col-sm-4">
+            End Date:  <input type="date"   placeholder="End Date" [ngModelOptions]="{standalone: true}" class="form-control" [disabled]="!isChecked"  (ngModelChange)="project.endDate=$event" [ngModel]="project.endDate  | date:'yyyy-MM-dd'" name="endDate" size="30"/>
+        </div>
+    
+  </div>
+  <div class="row mb-2">
+     
+        <div class="col-sm-6">
+            <label for="projectID">Priority:</label>
+          <input  type="range" class="form-control" id="rangePriority"  formControlName='rangePriority'  [(ngModel)]="project.priority" max="30" min="0" name="project.priority" step="1" value="0"  required/>
+          <output id="rangeDisplay">{{project.priority}}</output>
+          <small class="text-danger" [class.d-none]="!(f.rangePriority.errors && f.rangePriority.touched) " > Field Required </small>
+        </div>
+                          <div class="col-sm-6">
+                              <label for="projectID">Manager:</label>
+                  <select [(ngModel)]="project.manager"  formControlName='manager' name="manager" style="width:100%" >
+                    <option value="">---Select Value---</option>  
+                    <option *ngFor="let user of users" [ngValue]="user.firstName">{{user.firstName}}</option>
+                    </select>
+                    <small class="text-danger" [class.d-none]="!(f.manager.errors && f.manager.touched) " > Field Required </small>
+                    
+                       </div>
+      </div>
+   <div class="row mb-2">
+         <div class="offset-sm-10">
+          <input type="submit" class="btn btn-primary"[disabled]="!addProjectFormGroup.valid" value="Add" >&nbsp;&nbsp;
+          <input type="button" class="btn btn-secondary"  value="reset"  (click)="resetForm();">
+    </div>
+    </div>
+  
+  </form>
+  
+ <hr style="border: solid rgb(175, 237, 248); ">
+  <div class="row mb-2">
+      <div class="col-sm-4">
+        <input type="text" id="searchProject" class="form-control" [(ngModel)]="filterProject" placeholder="Search..." />
+      </div>
+      <div class="col-sm-8">
+        <label class="form-control-static">Sort:</label>&nbsp;
+        <input type="button" value="Start Date" class="btn btn-info" (click)="sortProjects('startDate')"/>&nbsp;
+        <input type="button" value="End Date" class="btn btn-info" (click)="sortProjects('endDate')" />&nbsp;
+        <input type="button" value="Priority" class="btn btn-info" (click)="sortProjects('priority')" />
+        <input type="button" value="Completed" class="btn btn-info" (click)="sortProjects('completedTasks')" />
+      </div>
+    </div>
+  <div *ngFor="let project of projects |searchProject:filterProject:'project'">
+      <div class="row mb-2">
+        <div class="col-sm-8 bg-light">
+          <div class="row">
+            <div class="col-sm-12">
+              <b>Project:</b> {{project.project}}
+            </div>
+          </div>
+          <div class="row  mb-2">
+            <div class="col-sm-6">
+              <b>No of tasks:</b> {{project.noOfTasks}}
+            </div>
+            <div class="col-sm-6">
+              <b>Completed:</b> {{project.completedTasks}}
+            </div>
+          </div>
+          <div class="row  mb-2">
+            <div class="col-sm-6">
+              <b>Start Date:</b> {{project.startDate | date: 'dd/MM/yyyy'}}
+            </div>
+            <div class="col-sm-6">
+              <b>End Date:</b> {{project.endDate | date: 'dd/MM/yyyy'}}
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="row mb-2">
+            <div class="col-sm-6 bg-light">
+              <b>Priority:</b><br />
+              {{project.priority}}
+            </div>
+            <div class="col-sm-6">
+              <input type="button" value="Edit" class="btn btn-primary" (click)="openModalDialog(project)"  size="20"/>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6 offset-sm-6">
+              <input type="button" value="Suspend" class="btn btn-primary" (click)="deleteProject(project.projectID)" size="20"/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr />
+
+  </div>
+  <!-- modal -->
+<div class="modal mainpage" tabindex="-1" role="dialog"  [ngStyle]="{'display':display}">
+    
+      <div class="modal-dialog" role="document">
+      
+        <div class="modal-content">
+        
+          <div class="modal-header popupHeader">  Edit Project 
+            <button type="button" class="close" aria-label="Close" (click)="closeModalDialog()"><span aria-hidden="true">&times;</span></button>
+            
+          </div>
+    
+          <!-- modal-body -->
+          <div class="modal-body popupBody">
+            <div class="container">
+                <form  class="form-group" (submit)="editProject()">
+                    <div class="row mb-2">
+                        <div class="col-sm-2 label"> Project:
+                          </div>
+                          <div class="col-sm-10">
+                          <input  type="text" class="form-control" [(ngModel)]="projectModal.project" name="project"  >
+                        </div>
+                      </div>
+                      <div class="row mb-2">
+                          <div class="col-sm-6" style="text-align: right">
+                              <input type="checkbox"/>Set Start and End Date
+                            </div>
+                      </div>
+                      <div class="row mb-2">   
+                          <div class="col-sm-6">
+                                  <input type="date"  class="form-control"  [(ngModel)]="projectModal.startDate" name="startDate" size="30"/>
+                          </div>
+                          <div class="col-sm-6">
+                                  <input type="date"  class="form-control"  [(ngModel)]="projectModal.endDate" name="endDate" size="30"/>
+                            </div>
+                      </div>
+                      <div class="row mb-2">
+                          <div class="col-sm-3 label"> Priority:
+                            </div>
+                            <div class="col-sm-9">
+                              <input  type="range" class="form-control" id="rangePriority"  [(ngModel)]="projectModal.priority" max="30" min="0" name="project.priority" step="1" value="0" oninput="rangeDisplay.value = rangePriority.value" required/>
+                              <output id="rangeDisplay"></output>
+                            </div>
+                      </div>
+                      <div class="row mb-2">
+                            <div class="col-sm-3 label"> Manager:
+                              </div>
+                                       <div class="col-sm-9">
+                             
+                                          <input  type="text" class="form-control" [(ngModel)]="projectModal.manager" name="manager" [disabled]='true' >
+                                           </div>
+                        </div>
+                       <div class="row mb-2">
+                             <div class="offset-sm-10">
+                              <input type="submit" class="btn btn-primary" value="Save" >&nbsp;&nbsp;
+                              <!-- <input type="button" class="btn btn-secondary"  value="reset"  (click)="resetForm();"> -->
+                        </div>
+                        </div>
+                      
+                      </form>
+          </div>
+          </div>
+    
+          <!-- modal-footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" (click)="closeModalDialog()" >Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  
